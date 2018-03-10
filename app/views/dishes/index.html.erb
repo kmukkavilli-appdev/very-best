@@ -52,36 +52,58 @@
               });
           });
       </script>
+      
+<div class="form-group">
+  <%= f.label :cuisine_name_cont, "Cuisine name contains" %>
+    <% Cuisine.all.order(:name).each do |cuisine| %>
+    <div>
+      <label>
+        <%= check_box_tag('q[cuisine_id_eq_any][]', cuisine.id, (true if @q.cuisine_id_eq_any.try(:include?, cuisine.id))) %>
+        <%= cuisine.name %>
+      </label>
+    </div>
+    <% end %>
+</div>
+    <%= f.text_field :cuisine_name_cont, :class => "form-control", :placeholder => "Cuisine name contains" %>
+</div>
 
-        <div class="form-group">
+<div class="form-group">
       <%= f.label :cuisine_name_cont, "Cuisine name contains" %>
       <%= f.text_field :cuisine_name_cont, :class => "form-control", :placeholder => "Cuisine name contains" %>
-    </div>
+</div>
 
 <div class="form-group">
       <%= f.label :bookmarks_notes_cont, "Bookmark notes contains" %>
       <%= f.text_field :bookmarks_notes_cont, :class => "form-control", :placeholder => "Bookmark notes contains" %>
-    </div>
+</div>
 
 <div class="form-group">
       <%= f.label :fans_username_cont, "User username contains" %>
       <%= f.text_field :fans_username_cont, :class => "form-control", :placeholder => "User username contains" %>
-    </div>
+</div>
 
 <div class="form-group">
       <%= f.label :specialists_name_cont, "Venue name contains" %>
       <%= f.text_field :specialists_name_cont, :class => "form-control", :placeholder => "Venue name contains" %>
-    </div>
+</div>
 
-      <%= f.submit :class => "btn btn-primary btn-block mb-1" %>
+    <%= f.submit :class => "btn btn-primary btn-block mb-1" %>
 
-      <a href="/dishes" class="btn btn-secondary btn-block mb-1">Clear filters</a>
-    <% end %>
+    <a href="/dishes" class="btn btn-secondary btn-block mb-1">Clear filters</a>
+<% end %>
     <a class="btn btn-secondary btn-block mb-1" data-toggle="collapse" href="#dishes_filters">
       Show Filters
     </a>
   </div>
 </div>
+
+<form action="/venues/new">
+  <button>
+      Add Venue
+  </button>
+</form>
+
+
 
 <div class="row">
   <div class="col-md-12">
@@ -90,12 +112,14 @@
         <th>Name</th>
         <th>Cuisine</th>
         <th>Actions</th>
+        <th>Venue</th>
       </tr>
 
       <% @dishes.each do |dish| %>
       <tr>
-        <td><%= dish.name %></td>
+        <td><a href="/dishes/<%=dish.id%>"><%= dish.name %></a></td>
         <td>
+
           <% if dish.cuisine.present? %>
             <a href="/cuisines/<%= dish.cuisine.id %>">
               <%= dish.cuisine.name %>
@@ -107,8 +131,40 @@
           <a href="/dishes/<%= dish.id %>/edit" class="btn btn-warning">Edit</a>
           <a href="/delete_dish/<%= dish.id %>" class="btn btn-danger" rel="nofollow">Delete</a>
         </td>
-      </tr>
+        
+        <td>
+        
+        <%bookmark = Bookmark.where({:user_id => current_user.id, :dish_id => dish.id}).first %>
+        <%if bookmark%>
+
+        <a href="/delete_bookmark/<%=bookmark.id%>" class="btn btn-link">Unlike</a>
+
+        <%else%>
+          
+          <form action="/create_bookmark" method="post">
+            
+            <input type="hidden" name="venue_id" value="<%= dish.id %>">
+
+            <input type="hidden" name="user_id" value="<%= current_user.id %>">
+            
+            <select>
+                <% @venue_list.each do |venue| %>
+                  <option>
+                    <%= venue.name %>
+                  </option>
+               <%end%>
+            </select>
+            
+            <button class="btn btn-link">
+            <i class="fa fa-heart-o">Like</i>
+            </button>
+          </form>
+          
+          <%end%>
+        </td>
+        </tr>
       <% end %>
+      
     </table>
     <%= paginate @dishes, theme: 'twitter-bootstrap-4' %>
   </div>
