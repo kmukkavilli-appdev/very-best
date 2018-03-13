@@ -141,7 +141,7 @@
       </li>
 
       <% @dish.specialists.each do |venue| %>
-        <li class="list-group-item">
+        <p class="list-group-item">
           <a href="/venues/<%= venue.id %>">
             <%= venue.name %>
           </a>
@@ -156,7 +156,7 @@
               <i class="fa fa-trash-o"></i>
             </a>
           </div>
-        </li>
+        </p>
       <% end %>
     </ul>
   </div>
